@@ -27,6 +27,7 @@ usb_peripheral_t usb_peripherals[] = {
 	{ .controller = 1, }
 };
 
+
 void set_up_host_controller(void)
 {
 	// Initialize the USB host controller.
@@ -44,6 +45,7 @@ void set_up_host_controller(void)
 	// where interrupts can be issued.
 	usb_run(&usb_peripherals[1]);
 }
+
 
 void wait_for_device(void)
 {
@@ -74,6 +76,8 @@ enum {
 
 	SWITCH_RCM_VID = 0x0955,
 	SWITCH_RCM_PID = 0x7321,
+
+	RCM_DEVICE_INFO_SIZE = 16,
 };
 
 
@@ -103,7 +107,6 @@ void initialize_endpoints(void)
 }
 
 
-
 /**
  * Validates that the connected device is a Nintendo Switch.
  *
@@ -125,9 +128,29 @@ int validate_connected_device(void)
 }
 
 
-int main(void) 
+/**
+ * Read the Device's Info structure via RCM.
+ *
+ * @param device_info Out argument that recieves the device information.
+ *		Should point to a 16-byte buffer.
+ * @return 0 on success, or an error code on failure
+ */
+int rcm_read_device_info(void *device_info)
+{
+	int length_read =
+		read_from_endpoint(&usb_peripherals[1], rcm_endpoint,
+		device_info, RCM_DEVICE_INFO_SIZE);
+
+	if (length_read == 16)
+		return 0;
+	else
+		return -length_read;
+}
+
+int main(void)
 {
 	int rc;
+	uint8_t device_info[RCM_DEVICE_INFO_SIZE];
 
 	// Perform the core GreatFET setup.
 	cpu_clock_init();
@@ -135,12 +158,29 @@ int main(void)
 	pin_setup();
 	rtc_init();
 
+	// Start communications and wait for a device to connect.
 	set_up_host_controller();
 	wait_for_device();
 	led_on(LED1);
 
+	// Ensure we talk only to Nintendo Switch.
 	initialize_endpoints();
 	rc = validate_connected_device();
+	if (rc) {
+		led_on(LED4);
+		return rc;
+	}
+
+	// Apply this device's configuration, so it can talk RCM.
+	rc = usb_host_switch_configuration(&usb_peripherals[1],
+			control_endpoint, RCM_ACTIVE_CONFIGURATION);
+	if (rc) {
+		led_on(LED4);
+		return rc;
+	}
+
+	// Read the attached Tegra's Device Hardware Info, including the Device ID.
+	rc = rcm_read_device_info(device_info);
 	if (rc) {
 		led_on(LED4);
 		return rc;

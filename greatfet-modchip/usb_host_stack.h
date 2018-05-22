@@ -25,9 +25,39 @@
  * @return length transferred on success, or a negative error code on failure
  * 	-EIO indicate a I/O error; -EPIPE indicates a stall
  */
-int usb_host_control_request(usb_peripheral_t *host, 
+int usb_host_control_request(usb_peripheral_t *host,
 	ehci_queue_head_t *qh, usb_setup_request_type_t request_type, uint8_t request,
 	uint16_t value, uint16_t index, uint16_t length, void *buffer);
+
+
+/**
+ * Convenience function that sends data on a given endpoint.
+ *
+ * @param host The USB host to use for transmission.
+ * @param endpoint The endpoint to send on.
+ * @param data The data to be sent.
+ * @param length The length of the data to send.
+ *
+ * @return length transferred on success, or a negative error code on failure
+ * 	-EIO indicate a I/O error; -EPIPE indicates a stall
+ */
+int send_on_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
+	void *data, size_t length);
+
+
+/**
+ * Convenience function that sends data on a given endpoint.
+ *
+ * @param host The USB host to use for transmission.
+ * @param endpoint The endpoint to send on.
+ * @param data Buffer to recieve data.
+ * @param length The maximum length we're willing to recieve.
+ *
+ * @return length transferred on success, or a negative error code on failure
+ * 	-EIO indicate a I/O error; -EPIPE indicates a stall
+ */
+int read_from_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
+	void *data, size_t length);
 
 
 /**
@@ -50,5 +80,17 @@ int usb_host_get_descriptor(usb_peripheral_t *host,
  */
 int usb_host_read_device_descriptor(usb_peripheral_t *host,
 	ehci_queue_head_t *qh, usb_descriptor_device_t *descriptor_out);
+
+
+/**
+ * Read the target device's device descriptor.
+ *
+ * @param host The USB peripheral to work with.
+ * @param qh The endpoint object for the device's control endpoint.
+ * @param descriptor_out Buffer to recieve the device descriptor.
+ */
+int usb_host_switch_configuration(usb_peripheral_t *host,
+	ehci_queue_head_t *qh, uint8_t configuration_number);
+
 
 #endif
