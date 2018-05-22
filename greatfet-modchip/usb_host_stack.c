@@ -123,7 +123,7 @@ int usb_host_control_request(usb_peripheral_t *host,
  * @return length transferred on success, or a negative error code on failure
  * 	-EIO indicate a I/O error; -EPIPE indicates a stall
  */
-int send_on_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
+int usb_host_send_on_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
 	void *data, size_t length)
 {
 	return usb_host_transfer(
@@ -148,7 +148,7 @@ int send_on_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
  * @return length transferred on success, or a negative error code on failure
  * 	-EIO indicate a I/O error; -EPIPE indicates a stall
  */
-int read_from_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
+int usb_host_read_from_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
 	void *data, size_t length)
 {
 	return usb_host_transfer(
@@ -217,6 +217,29 @@ int usb_host_switch_configuration(usb_peripheral_t *host,
 		USB_SETUP_REQUEST_TYPE_RECIPIENT_DEVICE,
 		USB_STANDARD_REQUEST_SET_CONFIGURATION,
 		configuration_number,
+		0,
+		0,
+		NULL
+	);
+}
+
+
+/**
+ * Set the device's working address.
+ *
+ * @param host The USB peripheral to work with.
+ * @param qh The endpoint object for the device's control endpoint.
+ * @param descriptor_out Buffer to recieve the device descriptor.
+ */
+int usb_host_set_address(usb_peripheral_t *host,
+	ehci_queue_head_t *qh, uint16_t address)
+{
+	return usb_host_control_request(host, qh,
+		USB_SETUP_REQUEST_TYPE_DATA_TRANSFER_DIRECTION_HOST_TO_DEVICE |
+		USB_SETUP_REQUEST_TYPE_STANDARD |
+		USB_SETUP_REQUEST_TYPE_RECIPIENT_DEVICE,
+		USB_STANDARD_REQUEST_SET_ADDRESS,
+		address,
 		0,
 		0,
 		NULL

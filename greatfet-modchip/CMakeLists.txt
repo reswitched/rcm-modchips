@@ -27,9 +27,10 @@ set(SRC_M4
 	"${PATH_GREATFET_FIRMWARE}/common/glitchkit.c"
 	"${PATH_GREATFET_FIRMWARE}/common/usb_queue.c"
 	"${PATH_GREATFET_FIRMWARE}/common/fault_handler.c"
-	"${PATH_GREATFET_FIRMWARE}/common/rom_iap.c"
+	"${PATH_GREATFET_FIRMWARE}/common/spiflash.c"
 	"${PATH_GREATFET_FIRMWARE}/common/spi_bus.c"
 	"${PATH_GREATFET_FIRMWARE}/common/debug.c"
+	"${PATH_GREATFET_FIRMWARE}/common/spiflash.c"
 )
 
 DeclareTargets()

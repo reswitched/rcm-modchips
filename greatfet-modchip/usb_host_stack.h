@@ -41,7 +41,7 @@ int usb_host_control_request(usb_peripheral_t *host,
  * @return length transferred on success, or a negative error code on failure
  * 	-EIO indicate a I/O error; -EPIPE indicates a stall
  */
-int send_on_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
+int usb_host_send_on_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
 	void *data, size_t length);
 
 
@@ -56,7 +56,7 @@ int send_on_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
  * @return length transferred on success, or a negative error code on failure
  * 	-EIO indicate a I/O error; -EPIPE indicates a stall
  */
-int read_from_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
+int usb_host_read_from_endpoint(usb_peripheral_t *host, ehci_queue_head_t *endpoint,
 	void *data, size_t length);
 
 
@@ -92,5 +92,8 @@ int usb_host_read_device_descriptor(usb_peripheral_t *host,
 int usb_host_switch_configuration(usb_peripheral_t *host,
 	ehci_queue_head_t *qh, uint8_t configuration_number);
 
+
+int usb_host_set_address(usb_peripheral_t *host,
+	ehci_queue_head_t *qh, uint16_t address);
 
 #endif
